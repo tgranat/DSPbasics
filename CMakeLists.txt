@@ -15,7 +15,7 @@ set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT "dspbasics")
 # Install Linux: 
 #   sudo apt-get install libsndfile-dev
 # Install Windows:
-#   download Windows intaller from: http://www.mega-nerd.com/libsndfile/#Download and insall
+#   download Windows intaller from: http://www.mega-nerd.com/libsndfile/#Download and install
 #   add <where-it-is-installed>/libsndfile/bin to PATH
 #
 # Change paths below if necessary (I'm a cmake newbie so this is how I have done it)
