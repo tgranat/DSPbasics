@@ -12,6 +12,6 @@ or
 
 Windows installer from  http://www.mega-nerd.com/libsndfile/#Download
 
-Look in, and maybe change paths to sndfile lib, in CMakeLists.txt.
+Look in CMakeLists.txt and maybe change paths to sndfile lib.
 
 
