@@ -1,6 +1,6 @@
 # DSPbasics
 
-Playing with simple Digital Signal Processing (DSP) stuff to learn.
+Some simple Digital Signal Processing (DSP) stuff to learn.
 
 It builds on both Windows (Visual Studio) and Linux (at least on Ubuntu 18.04). I'm providing a cmake file so it is recommended to use cmake to build.
 
