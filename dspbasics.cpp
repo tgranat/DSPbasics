@@ -11,7 +11,7 @@
 
 using namespace std;
 
-// Print some info about a sndfile
+// Utility method. Print some info about a sndfile
 
 void printFileInfo(SndfileHandle sf) {
     cout << "    Sample rate : " << sf.samplerate() << endl;
@@ -51,18 +51,10 @@ void printFileInfo(SndfileHandle sf) {
     }
 }
 
-// Create a tone and write to file
+// Create a sine tone and write to buffer
 
-void createTone(int frequency, int durationSec, int sampleRate, string outFileName)
+void createTone(float* buf, int frequency, int numFrames, int sampleRate)
 {
-	// Use sndfile to write the output to a WAV file
-	// SndfileHandle implementation see sndfile.hh
-	int numChannels = 1; // mono
-    SndfileHandle outFile = SndfileHandle(outFileName.c_str(), SFM_WRITE, SF_FORMAT_WAV | SF_FORMAT_PCM_16, numChannels, sampleRate);
-	
-	int numFrames = sampleRate * durationSec;
-	vector<float> outputBuf(numFrames);
-
     for (int i = 0; i < numFrames; i++)
     {
         float sample = 0.0;
@@ -70,25 +62,30 @@ void createTone(int frequency, int durationSec, int sampleRate, string outFileNa
         // Samples are normalized [-1.0, 1.0]
         // Multiplication with 0.30 descreases the amplitude      
         sample += 0.30 * sin(2 * M_PI * i * frequency / sampleRate);
-
-        // Ad harmonics 
+        // Here we can add som harmonics if we want
         //sample += 0.25 * sin(2 * M_PI * i * 2 * frequency / sampleRate);
         //sample += 0.20 * sin(2 * M_PI * i * 3 * frequency / sampleRate);
         //sample += 0.15 * sin(2 * M_PI * i * 4 * frequency / sampleRate);
         //sample += 0.10 * sin(2 * M_PI * i * 5 * frequency / sampleRate);
- 
+         
         // Write sample to the buffer
-        outputBuf[i] = sample; 
+        *buf++ = sample; 
     }
-
-    // Write buffer to file. SndfileHandle.write() wants a float* 
-    outFile.write(outputBuf.data(), numFrames);
 }
 
 
 int main()
 {
-    createTone(440, 3, 44100, "outfile.wav");
+    int sampleRate = 44100;
+    int durationSec = 3;
+    int numFrames = sampleRate * durationSec;
+    vector<float> outputBuf(numFrames);
+    createTone(outputBuf.data(), 440, numFrames, sampleRate);
+    // SndfileHandle implementation see sndfile.hh
+    int numChannels = 1; // mono
+    SndfileHandle outFile = SndfileHandle("outfile.wav", SFM_WRITE, SF_FORMAT_WAV | SF_FORMAT_PCM_16, numChannels, sampleRate);
+    // Write buffer to file. SndfileHandle.write() wants a float* 
+    outFile.write(outputBuf.data(), numFrames);
     	
 	return 0;
 }
