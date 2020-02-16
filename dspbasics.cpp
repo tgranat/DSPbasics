@@ -53,7 +53,11 @@ void printFileInfo(SndfileHandle sf) {
 // Synthesis
 // =========
 
-// Create a sine tone
+// Create a sine tone by sampling a sine wave
+// buf - array to write samples to
+// frequency - in Hertz, for example 440
+// numFrames - number of samples, also minimum size of buffer
+// sampleRate - in samples/second, for example 44100
 
 void createTone(float* buf, int frequency, int numFrames, int sampleRate)
 {

@@ -4,7 +4,11 @@ project ("DSPbasics")
 
 message (${CMAKE_CURRENT_BINARY_DIR})
 # Add source to this project's executable.
-add_executable (dspbasics "dspbasics.cpp" "dspbasics.h")
+add_executable (dspbasics 
+    "dspbasics.cpp"
+    "dspbasics.h"
+    "Biquad.cpp"
+    "Biquad.h")
 
 # Specify the default startup project in a Visual Studio solution.
 set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT "dspbasics")
