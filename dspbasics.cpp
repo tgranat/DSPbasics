@@ -82,10 +82,10 @@ void createTone(float* buf, int frequency, int numFrames, int sampleRate)
     }
 }
 
-// Create white noise
+// Create pseudorandom noise (white-ish noise)
 // Algorithm from https://www.musicdsp.org/en/latest/Synthesis/216-fast-whitenoise-generator.html
 
-void createWhiteNoise(float* buf, int numFrames, float level = 0.30f)
+void createNoise(float* buf, int numFrames, float level = 0.30f)
 {
     float scale = 2.0f / 0xffffffff;
     int x1 = 0x67452301;
@@ -119,7 +119,7 @@ int main()
     createTone(outputBuf.data(), 440, numFrames, sampleRate);
     writeBufToWavFile("tone.wav", outputBuf.data(), outputBuf.size(), 44100);
     // Create white noise and write to WAV file
-    createWhiteNoise(outputBuf.data(), numFrames);
+    createNoise(outputBuf.data(), numFrames);
     writeBufToWavFile("whitenoise.wav", outputBuf.data(), outputBuf.size(), 44100);
     	
 	return 0;
