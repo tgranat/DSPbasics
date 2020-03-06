@@ -82,8 +82,10 @@ void createTone(float* buf, int frequency, int numFrames, int sampleRate)
     }
 }
 
-// Create pseudorandom noise (white-ish noise)
+// Create pseudorandom white-ish noise 
 // Algorithm from https://www.musicdsp.org/en/latest/Synthesis/216-fast-whitenoise-generator.html
+// buf - array to write samples to
+// numFrames - number of samples, also minimum size of buffer
 
 void createNoise(float* buf, int numFrames, float level = 0.30f)
 {
@@ -100,6 +102,33 @@ void createNoise(float* buf, int numFrames, float level = 0.30f)
      }
 }
 
+// Effects
+// =======
+// Bitcrusher
+
+void bitCrusher(float* inbuf, float* outbuf, int numFrames, int sampleRate) {
+
+// TODO: code... nothin crushed here yet
+// TODO: get a mono WAV file with some clean single note guitar tones 
+
+    // Sample rate reduction
+    // Read a number of samples (for example 2 if sample rate reduced to half, or 10 if reduced to a 1/10 of original rate). 
+    // Calculate average of samples
+    // Write the average values to output buf for the next 2 8or 10) samples. We need to keep original sample rate
+
+    // Resolution reduction
+    // For example 16 bit is −32768 through 32767 (but converted to -1.0 to 1.0 float)
+    // 
+    // Change to 8 bit (256)
+    // multiply float with 256. Divide integer value with 256. The resoultion will only be 256.
+ 
+    for (int i = 0; i < numFrames; i++) {
+        float sample = inbuf[i];
+        *outbuf++ = sample;
+    }
+}
+
+
 // Write a float* buffer to a WAV file (mono), 16 bit PCM
 // Using the sndfile lib. For the SndfileHandle implementation, see sndfile.hh
 
@@ -108,6 +137,7 @@ void writeBufToWavFile(string fileName, float* buf, int bufLength, int sampleRat
     SndfileHandle outFile = SndfileHandle(fileName.c_str(), SFM_WRITE, SF_FORMAT_WAV | SF_FORMAT_PCM_16, numChannels, sampleRate);
     outFile.write(buf, bufLength);
 }
+
 
 int main()
 {
@@ -121,6 +151,17 @@ int main()
     // Create white noise and write to WAV file
     createNoise(outputBuf.data(), numFrames);
     writeBufToWavFile("whitenoise.wav", outputBuf.data(), outputBuf.size(), 44100);
+
+    // Read buffer with test sounds from mono WAV file
+    SndfileHandle infile = SndfileHandle("../tone.wav");
+    printFileInfo(infile);
+    sf_count_t frames = infile.frames();
+    int rate = infile.samplerate();
+    vector<float> inBuf(frames, 0);
+    infile.read(&inBuf[0], frames);
+    vector<float> outBuf(frames);
+    bitCrusher(inBuf.data(), outBuf.data(), frames, rate);
+    writeBufToWavFile("tone2.wav", outBuf.data(), outBuf.size(), 44100);
     	
 	return 0;
 }
