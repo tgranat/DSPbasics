@@ -50,6 +50,8 @@ void printFileInfo(SndfileHandle sf) {
     }
 }
 
+
+
 // Synthesis
 // =========
 
@@ -106,7 +108,7 @@ void createNoise(float* buf, int numFrames, float level = 0.30f)
 // =======
 // Bitcrusher
 
-void bitCrusher(float* inbuf, float* outbuf, int numFrames, int sampleRate) {
+void bitCrusher(float* inbuf, float* outbuf, int numFrames, int sampleRate, int resolution) {
 
 // TODO: code... nothin crushed here yet
 // TODO: get a mono WAV file with some clean single note guitar tones 
@@ -116,16 +118,21 @@ void bitCrusher(float* inbuf, float* outbuf, int numFrames, int sampleRate) {
     // Calculate average of samples
     // Write the average values to output buf for the next 2 8or 10) samples. We need to keep original sample rate
 
+
+
     // Resolution reduction
     // For example 16 bit is −32768 through 32767 (but converted to -1.0 to 1.0 float)
-    // 
-    // Change to 8 bit (256)
-    // multiply float with 256. Divide integer value with 256. The resoultion will only be 256.
+    // If changed to 8 bit (256):
+    // multiply float with 256. Divide resulting integer value with (float)256. The resoultion will only be 8 bits (-128 through 127).
  
+    int bits = pow(2, resolution);
+     
     for (int i = 0; i < numFrames; i++) {
         float sample = inbuf[i];
-        *outbuf++ = sample;
+        int crushed = sample * bits;
+        *outbuf++ = crushed/(float) bits;
     }
+    
 }
 
 
@@ -153,14 +160,14 @@ int main()
     writeBufToWavFile("whitenoise.wav", outputBuf.data(), outputBuf.size(), 44100);
 
     // Read buffer with test sounds from mono WAV file
-    SndfileHandle infile = SndfileHandle("../tone.wav");
+    SndfileHandle infile = SndfileHandle("StairwayExcerptMono.wav");
     printFileInfo(infile);
     sf_count_t frames = infile.frames();
     int rate = infile.samplerate();
     vector<float> inBuf(frames, 0);
     infile.read(&inBuf[0], frames);
     vector<float> outBuf(frames);
-    bitCrusher(inBuf.data(), outBuf.data(), frames, rate);
+    bitCrusher(inBuf.data(), outBuf.data(), frames, rate, 8);
     writeBufToWavFile("tone2.wav", outBuf.data(), outBuf.size(), 44100);
     	
 	return 0;
