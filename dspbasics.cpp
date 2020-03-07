@@ -132,7 +132,6 @@ void bitCrusher(float* inbuf, float* outbuf, int numFrames, int sampleRate, int 
         int crushed = sample * bits;
         *outbuf++ = crushed/(float) bits;
     }
-    
 }
 
 
@@ -148,27 +147,33 @@ void writeBufToWavFile(string fileName, float* buf, int bufLength, int sampleRat
 
 int main()
 {
+    // Initiating things used when createing "tone" and "white noise"
     int sampleRate = 44100;
     int durationSec = 3;
     int numFrames = sampleRate * durationSec;
     vector<float> outputBuf(numFrames);
+
     // Create a tone and write to WAV file
     createTone(outputBuf.data(), 440, numFrames, sampleRate);
     writeBufToWavFile("tone.wav", outputBuf.data(), outputBuf.size(), 44100);
+
     // Create white noise and write to WAV file
     createNoise(outputBuf.data(), numFrames);
     writeBufToWavFile("whitenoise.wav", outputBuf.data(), outputBuf.size(), 44100);
 
+    // Running "bitcrusher" on sounds from file
     // Read buffer with test sounds from mono WAV file
-    SndfileHandle infile = SndfileHandle("StairwayExcerptMono.wav");
+    SndfileHandle infile = SndfileHandle("../testdata/single-note-clean-mono.wav");
     printFileInfo(infile);
     sf_count_t frames = infile.frames();
     int rate = infile.samplerate();
     vector<float> inBuf(frames, 0);
     infile.read(&inBuf[0], frames);
     vector<float> outBuf(frames);
-    bitCrusher(inBuf.data(), outBuf.data(), frames, rate, 8);
-    writeBufToWavFile("tone2.wav", outBuf.data(), outBuf.size(), 44100);
+    int bitResolution = 2;
+    string filename = "bitcrushed_" + to_string(bitResolution) + "_bits.wav";
+    bitCrusher(inBuf.data(), outBuf.data(), frames, rate, bitResolution);
+    writeBufToWavFile(filename.c_str(), outBuf.data(), outBuf.size(), rate);
     	
 	return 0;
 }
