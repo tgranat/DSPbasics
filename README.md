@@ -1,6 +1,12 @@
 # DSPbasics
 
-Some simple Digital Signal Processing (DSP) stuff to learn.
+Doing some simple Digital Signal Processing (DSP) stuff to learn.
+
+Such as:
+
+* Generating a tone (sine wave)
+* Generating white-ish noise
+* Bit crushing using sample reduction and bit reduction
 
 It builds on both Windows (Visual Studio) and Linux (at least on Ubuntu 18.04). I'm providing a cmake file so it is recommended to use cmake to build.
 
