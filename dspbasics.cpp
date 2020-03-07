@@ -51,18 +51,6 @@ void printFileInfo(SndfileHandle sf) {
 }
 
 
-void reduceSample(float* inbuf, float* outbuf, int numFrames, int sampleRate, int reduction) {
-    // Test: hardcoded reduction = 10. No average, use first sample
-    for (int i = 0; i < numFrames-10-1  ; i++) {
-        float sample1 = inbuf[i];
-        for (int x = 0; x < 10; x++) {
-            i++;
-            *outbuf++ = sample1;
-        }
- 
-    }
-}
-
 // Synthesis
 // =========
 
