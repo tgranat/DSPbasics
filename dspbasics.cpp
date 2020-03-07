@@ -108,6 +108,10 @@ void createNoise(float* buf, int numFrames, float level = 0.30f)
 // Bitcrusher
 
 // Bit crush using Sample rate reduction. Reduces the sample rate (but keeps the number of samples in the buffer)
+// If this implementaion is used in for example a plugin, where the buffer is small due to low latency requirements,
+// then the sample rate reduction should be set to factors of the buffer size. For example reduction 8 or 16 if buffer size is 32.
+// This is due to the simplified handling of how odd frames are filled out in this implementation. 
+// If the buffer is large (read from a file like here) it doesn't really matter.
 
 void bitCrusherSamplerate(float* inbuf, float* outbuf, int numFrames, int sampleRate, int reduction) {
     // Sample rate reduction
@@ -115,27 +119,34 @@ void bitCrusherSamplerate(float* inbuf, float* outbuf, int numFrames, int sample
     // Calculate average of samples
     // Write the average values to output buf for the next 2 (or 10) samples. We need to keep original sample rate
  
-    // THIS VERSION does not calculate average yet. (should we?)
     int outframes = 0;
     float sample = 0.f;
     // If inbuffer is smaller than reduction we will set sample which will
     // be used filling up remaining out buffer at the end.
     // This is an unusual case, perhaps in a DAW with buf size set to very low.
     if (numFrames < reduction) {
-        sample = inbuf[0]; // Might change this to calculate average
+        sample = 0.f;
+        for (int x = 0; x < numFrames; x++) {
+            sample += inbuf[x];
+        }
+        sample = sample / reduction;
     }
+
+    // Read samples forward to calculate average. Write average sample to outbuf.
     for (int i = 0; i < numFrames - reduction+1 ; i++) {
-        //cout << "i = " << i << " outframes = " << outframes << endl;
-        sample = inbuf[i];
+        sample = 0.f;
+        for (int x = i; x < i + reduction; x++) {
+            sample += inbuf[x];
+        }
+        sample = sample / reduction;
         for (int x = 0; x < reduction - 1; x++) {
             i++;
-           outbuf[outframes++] = sample;
+            outbuf[outframes++] = sample;
         }
         outbuf[outframes++] = sample;
     }
-    //cout << "Done, last outframe index = " << outframes - 1 << endl; 
-
-    // if odd frames left, fill with last sample until end
+ 
+    // if odd frames left, fill with last used sample until end
     while (outframes < numFrames) {
         //cout << "Fill last frames, outframes index = " << outframes << endl;
         outbuf[outframes++] = sample;
@@ -148,8 +159,8 @@ void bitCrusherResolution(float* inbuf, float* outbuf, int numFrames, int sample
  
     // Resolution reduction
     // For example 16 bit is −32768 through 32767 (but converted to -1.0 to 1.0 float)
-    // To change to 8 bit (256):
-    // multiply float with 256. Divide resulting integer value with (float)256. The resoultion will only be 8 bits (-128 through 127).
+    //   Example to change to 8 bit (256):
+    //   multiply float with 256. Divide resulting integer value with (float)256. The resoultion will only be 8 bits (-128 through 127).
  
     int bits = pow(2, resolution);
      
@@ -161,7 +172,7 @@ void bitCrusherResolution(float* inbuf, float* outbuf, int numFrames, int sample
 }
 
 
-// Write a float* buffer to a WAV file (mono), 16 bit PCM
+// Write a float* buffer to a WAV file (mono). Default 16 bit PCM and 44100 kHz
 // Using the sndfile lib. For the SndfileHandle implementation, see sndfile.hh
 
 void writeBufToWavFile(string fileName, float* buf, int bufLength, int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16, int sampleRate = 44100) {
@@ -190,10 +201,8 @@ int main()
 
     // Running "bitcrusher" on sounds from file
     // Read buffer with test sounds from mono WAV file
-    SndfileHandle infile = SndfileHandle("../testdata/single-note-clean-mono.wav");
- //   SndfileHandle infile = SndfileHandle("bitcrushed_2_times_reduction.wav");
-  
-    printFileInfo(infile);
+    SndfileHandle infile = SndfileHandle("../testdata/single-note-clean-mono.wav"); 
+    // printFileInfo(infile);
     sf_count_t frames = infile.frames();
     int format = infile.format();
     int rate = infile.samplerate();
@@ -201,16 +210,16 @@ int main()
     infile.read(&inBuf[0], frames);
     vector<float> outBuf(frames);
 
-    // 
+    // Bit resolution reduction
 
     int bitResolution = 2;
     string filename = "bitcrushed_" + to_string(bitResolution) + "_bits.wav";
     bitCrusherResolution(inBuf.data(), outBuf.data(), frames, rate, bitResolution);
     writeBufToWavFile(filename.c_str(), outBuf.data(), outBuf.size(), format, rate);
 
-    //
+    // Sample rate reduction
 
-    int sampleRateReduction = 20;
+    int sampleRateReduction = 16;
     filename = "bitcrushed_" + to_string(sampleRateReduction) + "_times_reduction.wav";
     bitCrusherSamplerate(inBuf.data(), outBuf.data(), frames, rate, sampleRateReduction);
     writeBufToWavFile(filename.c_str(), outBuf.data(), outBuf.size(), format, rate);
