@@ -18,13 +18,13 @@ or
 
 Windows installer from  http://www.mega-nerd.com/libsndfile/#Download
 
-Build using cmake:
+Build using cmake (-B option since CMake 3.13):
 
-> cmake -B build
-> cmake --build build
+> cmake -B <build_dir>
+> cmake --build <build_dir>
 
 If you need to specify the location of the 
-> cmake -B build -DSNDFILE_DIR=<sndfilelocation>
+> cmake -B <build_dir> -DSNDFILE_DIR=<sndfilelocation>
 
 
 
