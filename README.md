@@ -1,6 +1,6 @@
 # DSPbasics
 
-Doing some simple Digital Signal Processing (DSP) stuff to learn.
+Doing some simple Digital Signal Processing (DSP) stuff for learning purposes.
 
 Such as:
 
@@ -18,6 +18,13 @@ or
 
 Windows installer from  http://www.mega-nerd.com/libsndfile/#Download
 
-Look in CMakeLists.txt and maybe change paths to sndfile lib.
+Build using cmake:
+
+> cmake -B build
+> cmake --build build
+
+If you need to specify the location of the 
+> cmake -B build -DSNDFILE_DIR=<sndfilelocation>
+
 
 
